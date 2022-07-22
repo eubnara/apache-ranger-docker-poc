@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   db:
-    image: mysql:5.7
+    image: arm64v8/mysql:8.0
     volumes:
       - db_data:/var/lib/mysql
     restart: always
@@ -21,9 +21,10 @@ services:
     depends_on:
       - db
     volumes:
-      - ./admin/bootstrap.sh:/opt/ranger_admin/bootstrap.sh
-      - ./admin/install.properties:/opt/ranger_admin/install.properties
-    command: ["./bootstrap.sh"]
+      - ./admin/bootstrap.sh:/tmp/bootstrap.sh
+      - ./admin/install.properties:/tmp/install.properties
+      - ./admin/mysql-connector-java-8.0.29.jar:/opt/mysql-connector-java-8.0.29.jar
+    command: ["/tmp/bootstrap.sh"]
     ports:
       - "6080:6080"
     restart: always
@@ -34,9 +35,9 @@ services:
     depends_on:
       - ranger-admin
     volumes:
-      - ./usersync/bootstrap.sh:/opt/ranger_usersync/bootstrap.sh
-      - ./usersync/install.properties:/opt/ranger_usersync/install.properties
-    command: ["./bootstrap.sh"]
+      - ./usersync/bootstrap.sh:/tmp/bootstrap.sh
+      - ./usersync/install.properties:/tmp/install.properties
+    command: ["/tmp/bootstrap.sh"]
     restart: always
   #  ranger-usersync-ldap:
   #    image: kadensungbincho/ranger-usersync:2.1.0
@@ -50,17 +51,17 @@ services:
   #      - ./usersync/templates:/templates
   #      - ./usersync/conf.dist/log4j.properties:/opt/ranger_usersync/conf.dist/log4j.properties
   #    command: ["./bootstrap.sh"]
-  es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
-    container_name: ranger-es
-    environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "ELASTIC_PASSWORD=elasticsearch"
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
+  # es:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+  #   container_name: ranger-es
+  #   environment:
+  #     - discovery.type=single-node
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - "ELASTIC_PASSWORD=elasticsearch"
+  #   volumes:
+  #     - es_data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9200:9200
 
 volumes:
   db_data:
